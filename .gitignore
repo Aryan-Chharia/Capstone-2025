@@ -1,0 +1,6 @@
+node_modules/
+.env
+**/.env
+viz_insight_pipeline/
+frontend/
+backend/.env
