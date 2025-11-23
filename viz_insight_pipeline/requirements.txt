@@ -1,0 +1,15 @@
+# Removed streamlit to avoid heavy pyarrow build failures on Python 3.14; not needed for FastAPI service.
+# Add lightweight optional visualization libs only if required later.
+# streamlit
+pandas
+numpy
+matplotlib
+plotly
+altair
+google-generativeai
+python-dotenv
+fastapi
+uvicorn
+python-multipart
+pytest
+httpx

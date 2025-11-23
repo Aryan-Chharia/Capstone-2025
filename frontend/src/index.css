@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@reference "tailwindcss";
+
+body {
+  @apply bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center font-sans;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

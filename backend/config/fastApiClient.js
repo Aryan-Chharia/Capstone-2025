@@ -25,7 +25,11 @@ async function callFastAPIAnalyze(userQuery, fileBuffer, fileName, sessionId) {
 		}
 	}
 
-	const normalizedPath = urlObj.pathname.replace(/\/+$/, '') + '/analyze';
+	// Ensure we don't double-append /analyze if it's already in the env var
+	let normalizedPath = urlObj.pathname.replace(/\/+$/, '');
+	if (!normalizedPath.endsWith('/analyze')) {
+		normalizedPath += '/analyze';
+	}
 	urlObj.pathname = normalizedPath;
 	const FASTAPI_URL = urlObj.toString();
 
@@ -37,8 +41,9 @@ async function callFastAPIAnalyze(userQuery, fileBuffer, fileName, sessionId) {
 	if (!name.endsWith('.csv')) throw new Error('fileName must have a .csv extension');
 
 	const form = new FormData();
-	form.append('user_query', userQuery);
-	form.append('file', fileBuffer, { filename: fileName || 'dataset.csv', contentType: 'text/csv' });
+	// Align field names with FastAPI endpoint expecting 'user_text' and 'files'
+	form.append('user_text', userQuery);
+	form.append('files', fileBuffer, { filename: fileName || 'dataset.csv', contentType: 'text/csv' });
 
 	const headers = { ...form.getHeaders() };
 	if (sessionId) headers['X-Session-ID'] = sessionId;
