@@ -10,7 +10,7 @@ import os
 
 # Set environment variables directly if not already set
 if not os.getenv('GEMINI_API_KEY'):
-    os.environ['GEMINI_API_KEY'] = 'AIzaSyCfUeJizbiv9SddDN9X0RJ7uwajj2SgwjU'
+    os.environ['GEMINI_API_KEY'] = // api ki dasso idhar
 if not os.getenv('GEMINI_MODEL'):
     os.environ['GEMINI_MODEL'] = 'gemini-2.5-pro'
 
