@@ -9,33 +9,28 @@ Rationale:
 
 import os
 import google.generativeai as genai
-from typing import Optional
-
-# Environment variables
-API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY")
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
 
 def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 1024) -> str:
     """
     Call Gemini LLM with system instruction and user prompt.
     """
-    import logging
-    logger = logging.getLogger(__name__)
+    # Load API key lazily (after main.py sets env vars)
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("LLM_API_KEY")
+    model_name = os.getenv("GEMINI_MODEL")
     
-    if not API_KEY:
+    if not api_key:
         raise RuntimeError("GEMINI_API_KEY or LLM_API_KEY must be set in environment")
+        
+    if not model_name:
+        raise RuntimeError("GEMINI_MODEL must be set in environment")
 
     try:
-        genai.configure(api_key=API_KEY)
-        
-        logger.info(f"Calling Gemini {MODEL_NAME} with max_tokens={max_tokens}")
-        logger.debug(f"System prompt (first 200 chars): {system_prompt[:200]}")
-        logger.debug(f"User prompt (first 200 chars): {user_prompt[:200]}")
+        genai.configure(api_key=api_key)
         
         # Initialize model with system instruction
         model = genai.GenerativeModel(
-            model_name=MODEL_NAME,
+            model_name=model_name,
             system_instruction=system_prompt
         )
         
@@ -52,14 +47,12 @@ def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 1024) -> st
             result = response.text
         except ValueError:
             # Handle cases where response.text is not available (e.g. safety block or other finish reasons)
-            logger.error(f"Gemini response has no text. Candidates: {response.candidates}")
             if response.candidates:
                 candidate = response.candidates[0]
-                if candidate.finish_reason == 2: # MAX_TOKENS
-                     # Try to retrieve partial text if available
+                if candidate.finish_reason == 2:  # MAX_TOKENS
+                    # Try to retrieve partial text if available
                     if candidate.content and candidate.content.parts:
                         result = candidate.content.parts[0].text
-                        logger.warning("Gemini response truncated (MAX_TOKENS). Returning partial text.")
                     else:
                         raise RuntimeError("Gemini response truncated with no content.")
                 else:
@@ -68,16 +61,9 @@ def call_llm(system_prompt: str, user_prompt: str, max_tokens: int = 1024) -> st
                 raise RuntimeError("Gemini returned no candidates.")
 
         if not result:
-            logger.error(f"Empty response from Gemini. Response object: {response}")
             raise RuntimeError("Gemini returned empty response")
-        
-        logger.info(f"Gemini response length: {len(result)} chars")
-        logger.debug(f"Gemini response (first 500 chars): {result[:500]}")
-        
-        # Return text content
+
         return result
-        
+
     except Exception as e:
-        logger.error(f"Gemini API error: {type(e).__name__}: {e}")
-        # Wrap provider-specific errors
         raise RuntimeError(f"Gemini API error: {str(e)}")

@@ -131,7 +131,7 @@ const getProject = async (req, res) => {
 				path: "chats",
 				populate: {
 					path: "messages",
-					options: { sort: { createdAt: 1 } },
+					options: { sort: { _id: 1 } },
 				},
 			});
 

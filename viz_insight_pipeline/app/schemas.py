@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 
 class AnalysisResponse(BaseModel):
-    intent: str
+    intent: Optional[str] = None
     graph_type: Optional[str] = None
     chartjs: Optional[Dict[str, Any]] = None
     insights: Optional[str] = None
